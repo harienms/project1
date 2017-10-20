@@ -6,7 +6,6 @@
 
 
 
-
 	//This step will work when the program fails to call a missing class 
 	class Manage {
 		public static function autoload($class) {
@@ -81,40 +80,55 @@
 			$this->html .= $form;
 		}
 
-
-
-
-   
+  
 
 		public function post() {
-		$target_dir = "./uploads/";
-		$target_file = $target_dir . basename($_FILES["fileToUpload"]["name"]);
-		$fileType = pathinfo($target_file,PATHINFO_EXTENSION);
-		$fileName=pathinfo($target_file,PATHINFO_BASENAME);
-		header('Location: index.php?page=htmlTable&filename='.$fileName);
+		$directory_to_upload = "uploads/";
+		$file_basename = $directory_to_upload . basename($_FILES["fileToUpload"]["name"]);
+		$fileType = pathinfo($file_basename,PATHINFO_EXTENSION);
+		$fileName=pathinfo($file_basename,PATHINFO_BASENAME);
+		move_uploaded_file($_FILES["fileToUpload"]["tmp_name"], $file_basename);
+		header("Location: index.php?page=htmlTable&filename=$file_basename");
 
 
-	 
-         }
+        }
 	}	
  
 
 
-	  class htmlTable extends page {
+	class htmlTable extends page {
 	    
-		public function get() {
+		    public function get() {
 
-		
+			$filename = $_REQUEST['filename'];
+			$file = fopen($filename,"r");
+			$table="";
+			$x=0;
+			$table .='<table border="2">';
+				while(! feof($file))
+				{
+                 $data=fgetcsv($file);
+                 $count=count($data);
+				 $table .='<tr>';
+				      for($x=0;$x<$count;$x++)
+					  {
+						  $table.='<td>'.$data[$x].'</td>';
+					  }
+				 $table.='</tr>';
+				}
+			$table.='</table>';
+			fclose($file);
+			stringFunctions::printThis($table);
+				
+
+	  }	
 	
-}
 	
 	
 	
 	
 	
-	
-	
-	
-}
+	  }
+
 
 ?>
